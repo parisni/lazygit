@@ -309,6 +309,7 @@ var tests = []*components.IntegrationTest{
 	filter_by_path.SelectFilteredFileWhenEnteringCommit,
 	filter_by_path.SelectFilteredFileWhenEnteringCommitNoRootItem,
 	filter_by_path.ShowDiffsForRenamedFile,
+	filter_by_path.ToggleFollowRenames,
 	filter_by_path.TypeFile,
 	interactive_rebase.AdvancedInteractiveRebase,
 	interactive_rebase.AmendCommitWithConflict,

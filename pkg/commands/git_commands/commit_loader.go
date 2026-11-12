@@ -58,6 +58,7 @@ func NewCommitLoader(
 type GetCommitsOptions struct {
 	Limit                bool
 	FilterPath           string
+	FollowRenames        bool // only used when FilterPath is set
 	FilterAuthor         string
 	IncludeRebaseCommits bool
 	RefName              string     // e.g. "HEAD" or "my_branch"
@@ -612,7 +613,8 @@ func (self *CommitLoader) getLogCmd(opts GetCommitsOptions) *oscommands.CmdObj {
 		Arg("--abbrev=40").
 		ArgIf(opts.FilterAuthor != "", "--author="+opts.FilterAuthor).
 		ArgIf(opts.Limit, "-300").
-		ArgIf(opts.FilterPath != "", "--follow", "--name-status").
+		ArgIf(opts.FilterPath != "" && opts.FollowRenames, "--follow").
+		ArgIf(opts.FilterPath != "", "--name-status").
 		Arg("--no-show-signature").
 		ArgIf(opts.RefToShowDivergenceFrom != "", "--left-right").
 		Arg("--").

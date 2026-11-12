@@ -284,12 +284,23 @@ func TestGetCommits(t *testing.T) {
 			expectedError:      nil,
 		},
 		{
-			testName: "should set filter path",
+			testName: "should set filter path and follow renames",
+			logOrder: "default",
+			opts:     GetCommitsOptions{RefName: "HEAD", RefForPushedStatus: &models.Branch{Name: "mybranch"}, FilterPath: "src", FollowRenames: true},
+			runner: oscommands.NewFakeRunner(t).
+				ExpectGitArgs([]string{"rev-list", "refs/heads/mybranch", "^mybranch@{u}"}, "", nil).
+				ExpectGitArgs([]string{"log", "HEAD", "--oneline", "--pretty=format:+%H%x00%at%x00%aN%x00%ae%x00%P%x00%m%x00%D%x00%s", "--abbrev=40", "--follow", "--name-status", "--no-show-signature", "--", "src"}, "", nil),
+
+			expectedCommitOpts: []models.NewCommitOpts{},
+			expectedError:      nil,
+		},
+		{
+			testName: "should set filter path without following renames",
 			logOrder: "default",
 			opts:     GetCommitsOptions{RefName: "HEAD", RefForPushedStatus: &models.Branch{Name: "mybranch"}, FilterPath: "src"},
 			runner: oscommands.NewFakeRunner(t).
 				ExpectGitArgs([]string{"rev-list", "refs/heads/mybranch", "^mybranch@{u}"}, "", nil).
-				ExpectGitArgs([]string{"log", "HEAD", "--oneline", "--pretty=format:+%H%x00%at%x00%aN%x00%ae%x00%P%x00%m%x00%D%x00%s", "--abbrev=40", "--follow", "--name-status", "--no-show-signature", "--", "src"}, "", nil),
+				ExpectGitArgs([]string{"log", "HEAD", "--oneline", "--pretty=format:+%H%x00%at%x00%aN%x00%ae%x00%P%x00%m%x00%D%x00%s", "--abbrev=40", "--name-status", "--no-show-signature", "--", "src"}, "", nil),
 
 			expectedCommitOpts: []models.NewCommitOpts{},
 			expectedError:      nil,

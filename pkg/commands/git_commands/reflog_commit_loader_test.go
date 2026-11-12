@@ -27,6 +27,7 @@ func TestGetReflogCommits(t *testing.T) {
 		runner                  *oscommands.FakeCmdObjRunner
 		lastReflogCommit        *models.Commit
 		filterPath              string
+		followRenames           bool
 		filterAuthor            string
 		expectedCommitOpts      []models.NewCommitOpts
 		expectedOnlyObtainedNew bool
@@ -117,9 +118,35 @@ func TestGetReflogCommits(t *testing.T) {
 			expectedError:           nil,
 		},
 		{
-			testName: "when passing filterPath",
+			testName: "when passing filterPath and following renames",
 			runner: oscommands.NewFakeRunner(t).
 				ExpectGitArgs([]string{"-c", "log.showSignature=false", "log", "-g", "--format=+%H%x00%ct%x00%gs%x00%P", "--follow", "--name-status", "--", "path"}, reflogOutput, nil),
+
+			lastReflogCommit: models.NewCommit(hashPool, models.NewCommitOpts{
+				Hash:          "c3c4b66b64c97ffeecde",
+				Name:          "checkout: moving from B to A",
+				Status:        models.StatusReflog,
+				UnixTimestamp: 1643150483,
+				Parents:       []string{"51baa8c1"},
+			}),
+			filterPath:    "path",
+			followRenames: true,
+			expectedCommitOpts: []models.NewCommitOpts{
+				{
+					Hash:          "c3c4b66b64c97ffeecde",
+					Name:          "checkout: moving from A to B",
+					Status:        models.StatusReflog,
+					UnixTimestamp: 1643150483,
+					Parents:       []string{"51baa8c1"},
+				},
+			},
+			expectedOnlyObtainedNew: true,
+			expectedError:           nil,
+		},
+		{
+			testName: "when passing filterPath without following renames",
+			runner: oscommands.NewFakeRunner(t).
+				ExpectGitArgs([]string{"-c", "log.showSignature=false", "log", "-g", "--format=+%H%x00%ct%x00%gs%x00%P", "--name-status", "--", "path"}, reflogOutput, nil),
 
 			lastReflogCommit: models.NewCommit(hashPool, models.NewCommitOpts{
 				Hash:          "c3c4b66b64c97ffeecde",
@@ -186,7 +213,7 @@ func TestGetReflogCommits(t *testing.T) {
 				cmd:    oscommands.NewDummyCmdObjBuilder(scenario.runner),
 			}
 
-			commits, onlyObtainednew, err := builder.GetReflogCommits(hashPool, scenario.lastReflogCommit, scenario.filterPath, scenario.filterAuthor)
+			commits, onlyObtainednew, err := builder.GetReflogCommits(hashPool, scenario.lastReflogCommit, scenario.filterPath, scenario.followRenames, scenario.filterAuthor)
 			assert.Equal(t, scenario.expectedOnlyObtainedNew, onlyObtainednew)
 			assert.Equal(t, scenario.expectedError, err)
 			t.Logf("actual commits: \n%s", litter.Sdump(commits))

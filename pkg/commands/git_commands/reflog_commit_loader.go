@@ -24,13 +24,14 @@ func NewReflogCommitLoader(common *common.Common, cmd oscommands.ICmdObjBuilder)
 
 // GetReflogCommits only returns the new reflog commits since the given lastReflogCommit
 // if none is passed (i.e. it's value is nil) then we get all the reflog commits
-func (self *ReflogCommitLoader) GetReflogCommits(hashPool *utils.StringPool, lastReflogCommit *models.Commit, filterPath string, filterAuthor string) ([]*models.Commit, bool, error) {
+func (self *ReflogCommitLoader) GetReflogCommits(hashPool *utils.StringPool, lastReflogCommit *models.Commit, filterPath string, followRenames bool, filterAuthor string) ([]*models.Commit, bool, error) {
 	cmdArgs := NewGitCmd("log").
 		Config("log.showSignature=false").
 		Arg("-g").
 		Arg("--format=+%H%x00%ct%x00%gs%x00%P").
 		ArgIf(filterAuthor != "", "--author="+filterAuthor).
-		ArgIf(filterPath != "", "--follow", "--name-status", "--", filterPath).
+		ArgIf(filterPath != "" && followRenames, "--follow").
+		ArgIf(filterPath != "", "--name-status", "--", filterPath).
 		ToArgv()
 
 	cmdObj := self.cmd.New(cmdArgs).DontLog()

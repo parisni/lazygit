@@ -36,6 +36,7 @@ func (self *SubCommitsHelper) ViewSubCommits(opts ViewSubCommitsOpts) error {
 		git_commands.GetCommitsOptions{
 			Limit:                   true,
 			FilterPath:              self.c.Modes().Filtering.GetPath(),
+			FollowRenames:           self.c.Modes().Filtering.GetFollowRenames(),
 			FilterAuthor:            self.c.Modes().Filtering.GetAuthor(),
 			IncludeRebaseCommits:    false,
 			RefName:                 opts.Ref.FullRefName(),

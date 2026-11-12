@@ -558,6 +558,16 @@ git:
     # passing the `--all` argument to `git log`)
     showWholeGraph: false
 
+    # When filtering the commits by path, follow the file's history across renames
+    # (equivalent to passing the `--follow` argument to `git log`).
+    # Following renames makes git inspect every commit of the history, which can
+    # take seconds in a big repository; turning it off lets git use its changed-path
+    # Bloom filters instead.
+    #
+    # Can be toggled from within lazygit with `Filtering menu -> Follow renames`
+    # (`<ctrl+s>` by default).
+    followRenamesWhenFiltering: true
+
   # How branches are sorted in the local branches view.
   # One of: 'date' (default) | 'recency' | 'alphabetical'
   # Can be changed from within Lazygit with the Sort Order menu (`s`) in the

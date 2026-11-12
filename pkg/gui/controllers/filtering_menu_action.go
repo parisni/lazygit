@@ -89,6 +89,16 @@ func (self *FilteringMenuAction) Call() error {
 		Tooltip: tooltip,
 	})
 
+	if self.c.Modes().Filtering.GetPath() != "" {
+		menuItems = append(menuItems, &types.MenuItem{
+			Label:   self.c.Tr.FilterFollowRenames,
+			Widget:  types.MakeMenuCheckBox(self.c.Modes().Filtering.GetFollowRenames()),
+			Keys:    menuKey('f'),
+			OnPress: self.c.Helpers().Mode.ToggleFilteringFollowRenames,
+			Tooltip: self.c.Tr.FilterFollowRenamesTooltip,
+		})
+	}
+
 	if self.c.Modes().Filtering.Active() {
 		menuItems = append(menuItems, &types.MenuItem{
 			Label:   self.c.Tr.ExitFilterMode,

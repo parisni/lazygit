@@ -689,6 +689,7 @@ type capturedReflogState struct {
 	hashPool              *utils.StringPool
 	filteringActive       bool
 	filterPath            string
+	followRenames         bool
 	filterAuthor          string
 }
 
@@ -701,6 +702,7 @@ func (self *RefreshHelper) captureReflogState() capturedReflogState {
 		hashPool:              self.c.Model().HashPool,
 		filteringActive:       self.c.Modes().Filtering.Active(),
 		filterPath:            self.c.Modes().Filtering.GetPath(),
+		followRenames:         self.c.Modes().Filtering.GetFollowRenames(),
 		filterAuthor:          self.c.Modes().Filtering.GetAuthor(),
 	}
 }
@@ -759,6 +761,7 @@ type capturedCommitState struct {
 	limitCommits         bool
 	showWholeGitGraph    bool
 	filterPath           string
+	followRenames        bool
 	filterAuthor         string
 	mainBranches         *git_commands.MainBranches
 	hashPool             *utils.StringPool
@@ -776,6 +779,7 @@ func (self *RefreshHelper) captureCommitsState() capturedCommitState {
 		limitCommits:         self.c.Contexts().LocalCommits.GetLimitCommits(),
 		showWholeGitGraph:    self.c.Contexts().LocalCommits.GetShowWholeGitGraph(),
 		filterPath:           self.c.Modes().Filtering.GetPath(),
+		followRenames:        self.c.Modes().Filtering.GetFollowRenames(),
 		filterAuthor:         self.c.Modes().Filtering.GetAuthor(),
 		mainBranches:         self.c.Model().MainBranches,
 		hashPool:             self.c.Model().HashPool,
@@ -846,6 +850,7 @@ func (self *RefreshHelper) refreshCommitsWithLimit(captured capturedCommitState,
 		git_commands.GetCommitsOptions{
 			Limit:                captured.limitCommits,
 			FilterPath:           captured.filterPath,
+			FollowRenames:        captured.followRenames,
 			FilterAuthor:         captured.filterAuthor,
 			IncludeRebaseCommits: true,
 			RefName:              refName,
@@ -999,6 +1004,7 @@ type capturedSubCommitState struct {
 	limitCommits            bool
 	refToShowDivergenceFrom string
 	filterPath              string
+	followRenames           bool
 	filterAuthor            string
 	mainBranches            *git_commands.MainBranches
 	hashPool                *utils.StringPool
@@ -1012,6 +1018,7 @@ func (self *RefreshHelper) captureSubCommitState() capturedSubCommitState {
 		limitCommits:            self.c.Contexts().SubCommits.GetLimitCommits(),
 		refToShowDivergenceFrom: self.c.Contexts().SubCommits.GetRefToShowDivergenceFrom(),
 		filterPath:              self.c.Modes().Filtering.GetPath(),
+		followRenames:           self.c.Modes().Filtering.GetFollowRenames(),
 		filterAuthor:            self.c.Modes().Filtering.GetAuthor(),
 		mainBranches:            self.c.Model().MainBranches,
 		hashPool:                self.c.Model().HashPool,
@@ -1027,6 +1034,7 @@ func (self *RefreshHelper) refreshSubCommitsWithLimit(captured capturedSubCommit
 		git_commands.GetCommitsOptions{
 			Limit:                   captured.limitCommits,
 			FilterPath:              captured.filterPath,
+			FollowRenames:           captured.followRenames,
 			FilterAuthor:            captured.filterAuthor,
 			IncludeRebaseCommits:    false,
 			RefName:                 captured.ref.FullRefName(),
@@ -1510,14 +1518,14 @@ func (self *RefreshHelper) refreshReflogCommits(captured capturedReflogState, en
 	// load does the git work on the worker and returns the new value for a
 	// reflog slice, reading the existing slice (captured on the UI thread) for
 	// the incremental fetch. The caller writes the result in the bounce.
-	load := func(existing []*models.Commit, filterPath string, filterAuthor string) ([]*models.Commit, error) {
+	load := func(existing []*models.Commit, filterPath string, followRenames bool, filterAuthor string) ([]*models.Commit, error) {
 		var lastReflogCommit *models.Commit
 		if filterPath == "" && filterAuthor == "" && len(existing) > 0 {
 			lastReflogCommit = existing[0]
 		}
 
 		commits, onlyObtainedNewReflogCommits, err := env.git.Loaders.ReflogCommitLoader.
-			GetReflogCommits(captured.hashPool, lastReflogCommit, filterPath, filterAuthor)
+			GetReflogCommits(captured.hashPool, lastReflogCommit, filterPath, followRenames, filterAuthor)
 		if err != nil {
 			return nil, err
 		}
@@ -1528,14 +1536,14 @@ func (self *RefreshHelper) refreshReflogCommits(captured capturedReflogState, en
 		return commits, nil
 	}
 
-	reflogCommits, err := load(captured.reflogCommits, "", "")
+	reflogCommits, err := load(captured.reflogCommits, "", false, "")
 	if err != nil {
 		return nil, err
 	}
 
 	filteredReflogCommits := reflogCommits
 	if captured.filteringActive {
-		filteredReflogCommits, err = load(captured.filteredReflogCommits, captured.filterPath, captured.filterAuthor)
+		filteredReflogCommits, err = load(captured.filteredReflogCommits, captured.filterPath, captured.followRenames, captured.filterAuthor)
 		if err != nil {
 			return nil, err
 		}

@@ -79,12 +79,12 @@ func (self *ModeHelper) Statuses() []ModeStatus {
 			IsActive: self.c.Modes().Filtering.Active,
 			InfoLabel: func() string {
 				filterContent := lo.Ternary(self.c.Modes().Filtering.GetPath() != "", self.c.Modes().Filtering.GetPath(), self.c.Modes().Filtering.GetAuthor())
+				label := fmt.Sprintf("%s '%s'", self.c.Tr.FilteringBy, filterContent)
+				if self.c.Modes().Filtering.GetPath() != "" && self.c.Modes().Filtering.GetFollowRenames() {
+					label += " " + self.c.Tr.FollowingRenamesInParentheses
+				}
 				return self.withResetButton(
-					fmt.Sprintf(
-						"%s '%s'",
-						self.c.Tr.FilteringBy,
-						filterContent,
-					),
+					label,
 					style.FgRed,
 				)
 			},
@@ -193,6 +193,24 @@ func (self *ModeHelper) SetFilteringAuthor(author string) error {
 	return self.setFiltering(func() {
 		self.c.Modes().Filtering.SetAuthor(author)
 	})
+}
+
+func (self *ModeHelper) ToggleFilteringFollowRenames() error {
+	selectedCommitHash := self.c.Contexts().LocalCommits.GetSelectedCommitHash()
+
+	return self.changeFiltering(
+		func() {
+			filtering := &self.c.Modes().Filtering
+			filtering.SetFollowRenames(!filtering.GetFollowRenames())
+		},
+		func() {
+			// Turning following on only adds commits, so the selected one is still there;
+			// turning it off may drop it, in which case we go back to the top.
+			if !self.c.Contexts().LocalCommits.SelectCommitByHash(selectedCommitHash) {
+				self.c.Contexts().LocalCommits.SetSelection(0)
+			}
+		},
+	)
 }
 
 func (self *ModeHelper) setFiltering(setFilter func()) error {

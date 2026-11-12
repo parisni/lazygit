@@ -440,6 +440,11 @@ type LogConfig struct {
 	ShowGraph string `yaml:"showGraph" jsonschema:"enum=always,enum=never,enum=when-maximised"`
 	// displays the whole git graph by default in the commits view (equivalent to passing the `--all` argument to `git log`)
 	ShowWholeGraph bool `yaml:"showWholeGraph"`
+	// When filtering the commits by path, follow the file's history across renames (equivalent to passing the `--follow` argument to `git log`).
+	// Following renames makes git inspect every commit of the history, which can take seconds in a big repository; turning it off lets git use its changed-path Bloom filters instead.
+	//
+	// Can be toggled from within lazygit with `Filtering menu -> Follow renames` (`<ctrl+s>` by default).
+	FollowRenamesWhenFiltering bool `yaml:"followRenamesWhenFiltering"`
 }
 
 type CommitPrefixConfig struct {
@@ -969,9 +974,10 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 				SquashMergeMessage: "Squash merge {{selectedRef}} into {{currentBranch}}",
 			},
 			Log: LogConfig{
-				Order:          "topo-order",
-				ShowGraph:      "always",
-				ShowWholeGraph: false,
+				Order:                      "topo-order",
+				ShowGraph:                  "always",
+				ShowWholeGraph:             false,
+				FollowRenamesWhenFiltering: true,
 			},
 			LocalBranchSortOrder:         "date",
 			RemoteBranchSortOrder:        "date",

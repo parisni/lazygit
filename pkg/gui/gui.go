@@ -650,7 +650,7 @@ func (gui *Gui) resetState(startArgs appTypes.StartArgs) types.Context {
 			PullRequestsMap:       make(map[string]*models.GithubPullRequest),
 		},
 		Modes: &types.Modes{
-			Filtering:        filtering.New(startArgs.FilterPath, ""),
+			Filtering:        filtering.New(startArgs.FilterPath, "", gui.c.UserConfig().Git.Log.FollowRenamesWhenFiltering),
 			CherryPicking:    gui.cherryPicking,
 			Diffing:          diffing.New(),
 			MarkedBaseCommit: marked_base_commit.New(),

@@ -729,6 +729,9 @@ type TranslationSet struct {
 	FilterBy                              string
 	ExitFilterMode                        string
 	FilterPathOption                      string
+	FilterFollowRenames                   string
+	FilterFollowRenamesTooltip            string
+	FollowingRenamesInParentheses         string
 	FilterAuthorOption                    string
 	EnterFileName                         string
 	EnterAuthor                           string
@@ -1944,6 +1947,9 @@ func EnglishTranslationSet() *TranslationSet {
 		FilterBy:                         "Filter by",
 		ExitFilterMode:                   "Stop filtering",
 		FilterPathOption:                 "Enter path to filter by",
+		FilterFollowRenames:              "Follow renames",
+		FilterFollowRenamesTooltip:       "Follow the filtered path's history across renames (git log --follow). This makes git inspect every commit of the history, which can take seconds in a big repository.",
+		FollowingRenamesInParentheses:    "(following renames)",
 		FilterAuthorOption:               "Enter author to filter by",
 		EnterFileName:                    "Enter path:",
 		EnterAuthor:                      "Enter author:",
