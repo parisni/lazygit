@@ -245,9 +245,10 @@ func (self *CommitCommands) ShowCmdObj(hash string, filterPaths []string, mode D
 		ParseableDiffPrefixes().
 		AddCommonDiffArgs(self.diffRendererConfigManager, self.UserConfig(), mode).
 		Arg("--submodule").
-		Arg("--color=" + mode.colorArg(self.diffRendererConfigManager)).
+		Arg("--color="+mode.colorArg(self.diffRendererConfigManager)).
 		Arg("--stat").
 		Arg("--decorate").
+		ArgIf(!self.UserConfig().Git.Log.ShowTagsInCommits, "--decorate-refs-exclude=refs/tags/").
 		Arg("-p").
 		Arg(hash).
 		Arg("--").

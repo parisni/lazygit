@@ -34,6 +34,7 @@ func TestGetCommits(t *testing.T) {
 		expectedCommitOpts []models.NewCommitOpts
 		expectedError      error
 		logOrder           string
+		hideTags           bool
 		opts               GetCommitsOptions
 		mainBranches       []string
 	}
@@ -305,12 +306,25 @@ func TestGetCommits(t *testing.T) {
 			expectedCommitOpts: []models.NewCommitOpts{},
 			expectedError:      nil,
 		},
+		{
+			testName: "should exclude tags from the decorations",
+			logOrder: "default",
+			hideTags: true,
+			opts:     GetCommitsOptions{RefName: "HEAD", RefForPushedStatus: &models.Branch{Name: "mybranch"}},
+			runner: oscommands.NewFakeRunner(t).
+				ExpectGitArgs([]string{"rev-list", "refs/heads/mybranch", "^mybranch@{u}"}, "", nil).
+				ExpectGitArgs([]string{"log", "HEAD", "--oneline", "--pretty=format:+%H%x00%at%x00%aN%x00%ae%x00%P%x00%m%x00%D%x00%s", "--abbrev=40", "--decorate-refs-exclude=refs/tags/", "--no-show-signature", "--"}, "", nil),
+
+			expectedCommitOpts: []models.NewCommitOpts{},
+			expectedError:      nil,
+		},
 	}
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.testName, func(t *testing.T) {
 			common := common.NewDummyCommon()
 			common.UserConfig().Git.Log.Order = scenario.logOrder
+			common.UserConfig().Git.Log.ShowTagsInCommits = !scenario.hideTags
 			cmd := oscommands.NewDummyCmdObjBuilder(scenario.runner)
 
 			builder := &CommitLoader{

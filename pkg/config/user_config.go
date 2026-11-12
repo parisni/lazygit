@@ -445,6 +445,11 @@ type LogConfig struct {
 	//
 	// Can be toggled from within lazygit with `Filtering menu -> Follow renames` (`<ctrl+s>` by default).
 	FollowRenamesWhenFiltering bool `yaml:"followRenamesWhenFiltering"`
+	// Show the tags pointing at commits, in the commits view and in the commit's diff header.
+	// Decorating with tags makes git load every tag of the repository, which can take a noticeable time when there are tens of thousands of them.
+	//
+	// Can be toggled from within lazygit with `Log menu -> Show tags` (`<ctrl+l>` in the commits window by default).
+	ShowTagsInCommits bool `yaml:"showTagsInCommits"`
 }
 
 type CommitPrefixConfig struct {
@@ -978,6 +983,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 				ShowGraph:                  "always",
 				ShowWholeGraph:             false,
 				FollowRenamesWhenFiltering: true,
+				ShowTagsInCommits:          true,
 			},
 			LocalBranchSortOrder:         "date",
 			RemoteBranchSortOrder:        "date",

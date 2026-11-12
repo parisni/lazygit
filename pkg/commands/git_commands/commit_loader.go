@@ -598,6 +598,7 @@ func (self *CommitLoader) getReachableHashes(refName string, notRefNames []strin
 // getLogCmd gets the git log.
 func (self *CommitLoader) getLogCmd(opts GetCommitsOptions) *oscommands.CmdObj {
 	gitLogOrder := self.UserConfig().Git.Log.Order
+	showTags := self.UserConfig().Git.Log.ShowTagsInCommits
 
 	refSpec := opts.RefName
 	if opts.RefToShowDivergenceFrom != "" {
@@ -611,6 +612,7 @@ func (self *CommitLoader) getLogCmd(opts GetCommitsOptions) *oscommands.CmdObj {
 		Arg("--oneline").
 		Arg(prettyFormat).
 		Arg("--abbrev=40").
+		ArgIf(!showTags, "--decorate-refs-exclude=refs/tags/").
 		ArgIf(opts.FilterAuthor != "", "--author="+opts.FilterAuthor).
 		ArgIf(opts.Limit, "-300").
 		ArgIf(opts.FilterPath != "" && opts.FollowRenames, "--follow").

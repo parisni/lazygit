@@ -1801,6 +1801,24 @@ func (self *LocalCommitsController) handleOpenLogMenu() error {
 					})
 				},
 			},
+			{
+				Label:   self.c.Tr.ShowTagsInCommits,
+				Tooltip: self.c.Tr.ShowTagsInCommitsTooltip,
+				Widget:  types.MakeMenuCheckBox(self.c.UserConfig().Git.Log.ShowTagsInCommits),
+				Keys:    menuKey('t'),
+				OnPress: func() error {
+					logConfig := &self.c.UserConfig().Git.Log
+					logConfig.ShowTagsInCommits = !logConfig.ShowTagsInCommits
+					return self.c.WithWaitingStatus(self.c.Tr.LoadingCommits, func(gocui.Task) error {
+						self.c.RefreshFromWorker(
+							types.RefreshOptions{
+								Scope: []types.RefreshableView{types.COMMITS, types.SUB_COMMITS},
+							},
+						)
+						return nil
+					})
+				},
+			},
 		},
 	})
 }

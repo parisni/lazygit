@@ -568,6 +568,15 @@ git:
     # (`<ctrl+s>` by default).
     followRenamesWhenFiltering: true
 
+    # Show the tags pointing at commits, in the commits view and in the commit's
+    # diff header.
+    # Decorating with tags makes git load every tag of the repository, which can
+    # take a noticeable time when there are tens of thousands of them.
+    #
+    # Can be toggled from within lazygit with `Log menu -> Show tags` (`<ctrl+l>` in
+    # the commits window by default).
+    showTagsInCommits: true
+
   # How branches are sorted in the local branches view.
   # One of: 'date' (default) | 'recency' | 'alphabetical'
   # Can be changed from within Lazygit with the Sort Order menu (`s`) in the

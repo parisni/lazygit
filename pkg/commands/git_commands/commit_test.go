@@ -255,6 +255,7 @@ func TestCommitShowCmdObj(t *testing.T) {
 		contextSize         uint64
 		similarityThreshold int
 		ignoreWhitespace    bool
+		hideTags            bool
 		diffRendererConfig  *config.DiffRendererConfig
 		expected            []string
 	}
@@ -277,6 +278,16 @@ func TestCommitShowCmdObj(t *testing.T) {
 			ignoreWhitespace:    false,
 			diffRendererConfig:  nil,
 			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "-p", "1234567890", "--", "file.txt"},
+		},
+		{
+			testName:            "Show diff without tags",
+			filterPaths:         []string{},
+			contextSize:         3,
+			similarityThreshold: 50,
+			ignoreWhitespace:    false,
+			hideTags:            true,
+			diffRendererConfig:  nil,
+			expected:            []string{"-C", "/path/to/worktree", "-c", "diff.dstPrefix=b/", "-c", "diff.srcPrefix=a/", "-c", "diff.noprefix=false", "show", "--no-ext-diff", "--unified=3", "--find-renames=50%", "--submodule", "--color=always", "--stat", "--decorate", "--decorate-refs-exclude=refs/tags/", "-p", "1234567890", "--"},
 		},
 		{
 			testName:            "Show diff with custom context size",
@@ -334,6 +345,7 @@ func TestCommitShowCmdObj(t *testing.T) {
 			userConfig.Git.IgnoreWhitespaceInDiffView = s.ignoreWhitespace
 			userConfig.Git.DiffContextSize = s.contextSize
 			userConfig.Git.RenameSimilarityThreshold = s.similarityThreshold
+			userConfig.Git.Log.ShowTagsInCommits = !s.hideTags
 
 			runner := oscommands.NewFakeRunner(t).ExpectGitArgs(s.expected, "", nil)
 			repoPaths := RepoPaths{

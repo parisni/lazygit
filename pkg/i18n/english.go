@@ -889,6 +889,8 @@ type TranslationSet struct {
 	ToggleShowGitGraphAll                    string
 	ShowGitGraph                             string
 	ShowGitGraphTooltip                      string
+	ShowTagsInCommits                        string
+	ShowTagsInCommitsTooltip                 string
 	SortOrder                                string
 	SortOrderPromptLocalBranches             string
 	SortOrderPromptRemoteBranches            string
@@ -2105,6 +2107,8 @@ func EnglishTranslationSet() *TranslationSet {
 		LogMenuTitle:                             "Commit Log Options",
 		ToggleShowGitGraphAll:                    "Toggle show whole git graph (pass the `--all` flag to `git log`)",
 		ShowGitGraph:                             "Show git graph",
+		ShowTagsInCommits:                        "Show tags",
+		ShowTagsInCommitsTooltip:                 "Show the tags pointing at commits. Hiding them speeds up loading the commits in repositories with tens of thousands of tags.",
 		ShowGitGraphTooltip:                      "Show or hide the git graph in the commit log.\n\nThe default can be changed in the config file with the key 'git.log.showGraph'.",
 		SortOrder:                                "Sort order",
 		SortOrderPromptLocalBranches:             "The default sort order for local branches can be set in the config file with the key 'git.localBranchSortOrder'.",
